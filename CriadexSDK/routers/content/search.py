@@ -48,10 +48,10 @@ class Filter(BaseModel):
 class SearchGroupConfig(BaseModel):
     prompt: str
 
-    top_k: Optional[int] = Field(default=None, ge=1, le=50)
+    top_k: Optional[int] = Field(default=None, ge=1, le=1000)
     min_k: float = Field(default=0.0, ge=0.0, le=1.0)
 
-    top_n: Optional[int] = Field(default=None, ge=1, le=50)
+    top_n: Optional[int] = Field(default=None, ge=1, le=1000)
     min_n: float = Field(default=0.0, ge=0.0, le=1.0)
 
     rerank_enabled: bool = True
