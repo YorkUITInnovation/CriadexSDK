@@ -15,7 +15,7 @@ class RerankAgentResponse(BaseAgentResponse):
 class RerankAgentConfig(QueryModelParameters):
     prompt: str
 
-    top_n: Optional[int] = Field(default=None, ge=1, le=10)
+    top_n: Optional[int] = Field(default=None, ge=1)
     min_n: float = Field(default=0.0, ge=0.0, le=1.0)
 
     nodes: List[TextNodeWithScore]

@@ -51,7 +51,7 @@ class SearchGroupConfig(BaseModel):
     top_k: Optional[int] = Field(default=None, ge=1, le=1000)
     min_k: float = Field(default=0.0, ge=0.0, le=1.0)
 
-    top_n: Optional[int] = Field(default=None, ge=1, le=1000)
+    top_n: Optional[int] = Field(default=None, ge=1)
     min_n: float = Field(default=0.0, ge=0.0, le=1.0)
 
     rerank_enabled: bool = True
