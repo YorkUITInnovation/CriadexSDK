@@ -4,6 +4,7 @@ from CriadexSDK.core.api.router import Router
 from .chat import AgentChatRoute
 from .intents import AgentIntentsRoute
 from .lang import AgentLanguageRoute
+from .related_prompts import AgentRelatedPromptsRoute
 from .transform import AgentTransformRoute
 
 
@@ -16,6 +17,7 @@ class AzureAgentsRouter(Router):
         self.intents: AgentIntentsRoute = self._create_route(AgentIntentsRoute)
         self.language: AgentLanguageRoute = self._create_route(AgentLanguageRoute)
         self.transform: AgentTransformRoute = self._create_route(AgentTransformRoute)
+        self.related_prompts: AgentRelatedPromptsRoute = self._create_route(AgentRelatedPromptsRoute)
 
 
 __all__ = ["AzureAgentsRouter"]
