@@ -32,6 +32,6 @@ class AgentRelatedPromptsRoute(Route):
             agent_config: RelatedPromptsAgentConfig
     ) -> Optional[dict]:
         return await self._post(
-            path=f"/models/azure/{model_id}/agents/intents",
+            path=f"/models/azure/{model_id}/agents/related_prompts",
             json=agent_config
         )

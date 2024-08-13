@@ -111,8 +111,10 @@ class Route:
     async def __base_request(cls, method: Callable[[], Awaitable[httpx.Response]]) -> Optional[dict]:
         try:
             result: httpx.Response = await method()
-            if os.environ.get("CRIADEX_REQUEST_DEBUG_ENABLED", "").lower() == "true":
-                print("Response Debug:", result)
+            if os.environ.get("CRIADEX_SDK_REQUEST_DEBUG_ENABLED", "").lower() == "true":
+                print("-- Response Debug ---")
+                print("Code:", str(result))
+                print("Content:", result.read())
             return result.json()
         except Exception:
             logging.error("Criadex Request Error: " + traceback.format_exc())
