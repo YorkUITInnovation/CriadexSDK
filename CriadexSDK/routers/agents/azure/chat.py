@@ -8,11 +8,11 @@ from CriadexSDK.routers.content.search import CompletionUsage
 
 class ImageBlock(BaseModel):
     block_type: Literal["image"] = "image"
-    image: bytes | None = None
-    path: FilePath | None = None
-    url: AnyUrl | str | None = None
-    image_mimetype: str | None = None
-    detail: str | None = None
+    image: Optional[block_type] = None
+    path:  Optional[FilePath] = None
+    url: Union[AnyUrl, str, None] = None
+    image_mimetype: Optional[str] = None
+    detail: Optional[str] = None
 
 
 class TextBlock(BaseModel):
