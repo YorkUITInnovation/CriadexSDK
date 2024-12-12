@@ -14,7 +14,8 @@ class CompletionUsage(BaseModel):
 
 
 class BaseNode(BaseModel):
-    metadata: dict
+    extra_info: dict
+    metadata: dict = Field(alias="extra_info")
     excluded_embed_metadata_keys: List[str] = []
     excluded_llm_metadata_keys: List[str] = []
     class_name: str
