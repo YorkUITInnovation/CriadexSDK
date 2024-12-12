@@ -26,6 +26,10 @@ class ChatMessage(BaseModel):
     additional_kwargs: dict = dict()
     metadata: dict = dict()
 
+    @property
+    def content(self) -> str:
+        return " ".join([block.text for block in self.blocks if isinstance(block, TextBlock)])
+
     @classmethod
     def from_content(
             cls,
