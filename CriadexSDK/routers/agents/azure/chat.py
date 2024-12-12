@@ -1,14 +1,28 @@
-from typing import List, Optional, Literal, Any
+from typing import List, Optional, Literal, Any, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, FilePath, AnyUrl
 
 from CriadexSDK.core.api.route import Route, BaseResponse, outputs
 from CriadexSDK.routers.content.search import CompletionUsage
 
 
+class ImageBlock(BaseModel):
+    block_type: Literal["image"] = "image"
+    image: bytes | None = None
+    path: FilePath | None = None
+    url: AnyUrl | str | None = None
+    image_mimetype: str | None = None
+    detail: str | None = None
+
+
+class TextBlock(BaseModel):
+    block_type: Literal["text"] = "text"
+    text: str
+
+
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
-    content: str
+    content: List[Union[TextBlock, ImageBlock]]
     additional_kwargs: dict = dict()
     metadata: dict = dict()
 
