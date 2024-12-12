@@ -29,11 +29,10 @@ class ChatMessage(BaseModel):
     @classmethod
     def from_text(
             cls,
-            content: str,
             **kwargs
     ) -> "ChatMessage":
+        content = kwargs.pop('content')
         return cls(
-            role="user",
             content=[TextBlock(text=content)],
             **kwargs
         )
