@@ -9,7 +9,7 @@ from CriadexSDK.routers.content.search import CompletionUsage
 class ImageBlock(BaseModel):
     block_type: Literal["image"] = "image"
     image: Optional[block_type] = None
-    path:  Optional[FilePath] = None
+    path: Optional[FilePath] = None
     url: Union[AnyUrl, str, None] = None
     image_mimetype: Optional[str] = None
     detail: Optional[str] = None
@@ -25,6 +25,18 @@ class ChatMessage(BaseModel):
     content: List[Union[TextBlock, ImageBlock]]
     additional_kwargs: dict = dict()
     metadata: dict = dict()
+
+    @classmethod
+    def from_text(
+            cls,
+            content: str,
+            **kwargs
+    ) -> "ChatMessage":
+        return cls(
+            role="user",
+            content=[TextBlock(text=content)],
+            **kwargs
+        )
 
 
 class ChatMessageRaw(BaseModel):
