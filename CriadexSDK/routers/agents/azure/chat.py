@@ -22,18 +22,18 @@ class TextBlock(BaseModel):
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
-    content: List[Union[TextBlock, ImageBlock]]
+    blocks: List[Union[TextBlock, ImageBlock]]
     additional_kwargs: dict = dict()
     metadata: dict = dict()
 
     @classmethod
-    def from_text(
+    def from_content(
             cls,
+            content: str,
             **kwargs
     ) -> "ChatMessage":
-        content = kwargs.pop('content')
         return cls(
-            content=[TextBlock(text=content)],
+            blocks=[TextBlock(text=content)],
             **kwargs
         )
 
