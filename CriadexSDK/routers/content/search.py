@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -19,6 +20,16 @@ class BaseNode(BaseModel):
     class_name: str
 
 
+class Asset(BaseModel):
+    id: int
+    uuid: str
+    document_id: int
+    group_id: int
+    mimetype: str
+    data: str
+    created: datetime
+
+
 class TextNode(BaseNode):
     text: str
     text_template: str
@@ -36,6 +47,7 @@ class TextNodeWithScore(NodeWithScore):
 
 class GroupSearchResponse(BaseModel):
     nodes: List[TextNodeWithScore]
+    assets: List[Asset]
     search_units: Optional[int] = None
     metadata: dict = {}
 
