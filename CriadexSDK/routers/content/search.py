@@ -28,6 +28,7 @@ class Asset(BaseModel):
     mimetype: str
     data: str
     created: datetime
+    description: str
 
 
 class TextNode(BaseNode):
