@@ -17,6 +17,7 @@ setuptools.setup(
     extras_require={
         "tests": [
             "pytest",
+            "pytest-mock",
             "pytest-asyncio",
         ],
     },
