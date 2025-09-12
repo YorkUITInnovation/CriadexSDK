@@ -17,33 +17,36 @@ class ContentRouter:
         # POST /knowledge_bases/{group_name}/documents
         url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
         resp = await self._httpx.post(url, json=file)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def search(self, group_name, search_config):
         # POST /knowledge_bases/{group_name}/query
         url = f"{self._api_base}/knowledge_bases/{group_name}/query"
         resp = await self._httpx.post(url, json=search_config)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def update(self, group_name, file):
-        # PATCH or PUT logic as per RAGFlow API (placeholder)
-        pass
+        # PATCH /knowledge_bases/{group_name}/documents
+        url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
+        resp = await self._httpx.patch(url, json=file)
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def delete(self, group_name, document_name):
         # DELETE /knowledge_bases/{group_name}/documents/{document_name}
         url = f"{self._api_base}/knowledge_bases/{group_name}/documents/{document_name}"
         resp = await self._httpx.delete(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def list(self, group_name):
         # GET /knowledge_bases/{group_name}/documents
         url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
 class GroupsRouter:
     def __init__(self, api_base, httpx_client):
@@ -55,22 +58,22 @@ class GroupsRouter:
         url = f"{self._api_base}/knowledge_bases"
         data = {"name": group_name, **group_config}
         resp = await self._httpx.post(url, json=data)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def delete(self, group_name):
         # DELETE /knowledge_bases/{group_name}
         url = f"{self._api_base}/knowledge_bases/{group_name}"
         resp = await self._httpx.delete(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def about(self, group_name):
         # GET /knowledge_bases/{group_name}
         url = f"{self._api_base}/knowledge_bases/{group_name}"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
 class AuthRouter:
     def __init__(self, api_base, httpx_client):
@@ -82,30 +85,30 @@ class AuthRouter:
         url = f"{self._api_base}/auth/keys"
         data = {"api_key": api_key, **create_config}
         resp = await self._httpx.post(url, json=data)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def delete(self, api_key):
         # DELETE /auth/keys/{api_key}
         url = f"{self._api_base}/auth/keys/{api_key}"
         resp = await self._httpx.delete(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def check(self, api_key):
         # GET /auth/keys/{api_key}
         url = f"{self._api_base}/auth/keys/{api_key}"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def reset(self, api_key, new_key):
         # PATCH /auth/keys/{api_key} (example, adjust as needed)
         url = f"{self._api_base}/auth/keys/{api_key}"
         data = {"new_key": new_key}
         resp = await self._httpx.patch(url, json=data)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
 class GroupAuthRouter:
     def __init__(self, api_base, httpx_client):
@@ -117,29 +120,29 @@ class GroupAuthRouter:
         url = f"{self._api_base}/knowledge_bases/{group_name}/auth"
         data = {"api_key": api_key}
         resp = await self._httpx.post(url, json=data)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def check(self, group_name, api_key):
         # GET /knowledge_bases/{group_name}/auth/{api_key}
         url = f"{self._api_base}/knowledge_bases/{group_name}/auth/{api_key}"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def delete(self, group_name, api_key):
         # DELETE /knowledge_bases/{group_name}/auth/{api_key}
         url = f"{self._api_base}/knowledge_bases/{group_name}/auth/{api_key}"
         resp = await self._httpx.delete(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def list(self, api_key):
         # GET /auth/keys/{api_key}/knowledge_bases
         url = f"{self._api_base}/auth/keys/{api_key}/knowledge_bases"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
 class ModelsRouter:
     def __init__(self, api_base, httpx_client):
@@ -151,22 +154,22 @@ class ModelsRouter:
         url = f"{self._api_base}/models"
         data = {"model_id": model_id, **model_config}
         resp = await self._httpx.post(url, json=data)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def delete(self, model_id):
         # DELETE /models/{model_id}
         url = f"{self._api_base}/models/{model_id}"
         resp = await self._httpx.delete(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
     async def about(self, model_id):
         # GET /models/{model_id}
         url = f"{self._api_base}/models/{model_id}"
         resp = await self._httpx.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        await resp.raise_for_status()
+        return await resp.json()
 
 class AgentsRouter:
     class Azure:
@@ -178,22 +181,22 @@ class AgentsRouter:
             # POST /models/{model_id}/chat
             url = f"{self._api_base}/models/{model_id}/chat"
             resp = await self._httpx.post(url, json=agent_config)
-            resp.raise_for_status()
-            return resp.json()
+            await resp.raise_for_status()
+            return await resp.json()
 
         async def related_prompts(self, model_id, agent_config):
             # POST /models/{model_id}/related_prompts
             url = f"{self._api_base}/models/{model_id}/related_prompts"
             resp = await self._httpx.post(url, json=agent_config)
-            resp.raise_for_status()
-            return resp.json()
+            await resp.raise_for_status()
+            return await resp.json()
 
         async def transform(self, model_id, agent_config):
             # POST /models/{model_id}/transform
             url = f"{self._api_base}/models/{model_id}/transform"
             resp = await self._httpx.post(url, json=agent_config)
-            resp.raise_for_status()
-            return resp.json()
+            await resp.raise_for_status()
+            return await resp.json()
 
     class Cohere:
         def __init__(self, api_base, httpx_client):
@@ -204,8 +207,8 @@ class AgentsRouter:
             # POST /models/{model_id}/rerank
             url = f"{self._api_base}/models/{model_id}/rerank"
             resp = await self._httpx.post(url, json=agent_config)
-            resp.raise_for_status()
-            return resp.json()
+            await resp.raise_for_status()
+            return await resp.json()
 
     def __init__(self, api_base, httpx_client):
         self.azure = AgentsRouter.Azure(api_base, httpx_client)
