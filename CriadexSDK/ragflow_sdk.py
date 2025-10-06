@@ -171,6 +171,13 @@ class ModelsRouter:
         await resp.raise_for_status()
         return await resp.json()
 
+    async def update(self, model_id, model_config):
+        # PATCH /models/{model_id}
+        url = f"{self._api_base}/models/{model_id}"
+        resp = await self._httpx.patch(url, json=model_config)
+        await resp.raise_for_status()
+        return await resp.json()
+
 class AgentsRouter:
     class Azure:
         def __init__(self, api_base, httpx_client):
@@ -194,6 +201,20 @@ class AgentsRouter:
         async def transform(self, model_id, agent_config):
             # POST /models/{model_id}/transform
             url = f"{self._api_base}/models/{model_id}/transform"
+            resp = await self._httpx.post(url, json=agent_config)
+            await resp.raise_for_status()
+            return await resp.json()
+
+        async def intents(self, model_id, agent_config):
+            # POST /models/{model_id}/intents
+            url = f"{self._api_base}/models/{model_id}/intents"
+            resp = await self._httpx.post(url, json=agent_config)
+            await resp.raise_for_status()
+            return await resp.json()
+
+        async def language(self, model_id, agent_config):
+            # POST /models/{model_id}/language
+            url = f"{self._api_base}/models/{model_id}/language"
             resp = await self._httpx.post(url, json=agent_config)
             await resp.raise_for_status()
             return await resp.json()
