@@ -239,6 +239,7 @@ class AgentsRouter:
 class RAGFlowSDK:
     def __init__(self, api_base: str, error_stacktrace: bool = True):
         self._api_base = api_base[:-1] if api_base.endswith("/") else api_base
+        self._error_stacktrace = error_stacktrace
         self._httpx = AsyncClient()
         self.content = ContentRouter(self._api_base, self._httpx)
         self.manage = GroupsRouter(self._api_base, self._httpx)
