@@ -54,16 +54,16 @@ class GroupsRouter:
         self._httpx = httpx_client
 
     async def create(self, group_name, group_config):
-        # POST /knowledge_bases
-        url = f"{self._api_base}/knowledge_bases"
-        data = {"name": group_name, **group_config}
-        resp = await self._httpx.post(url, json=data)
+        # POST /groups/{group_name}/create
+        url = f"{self._api_base}/groups/{group_name}/create"
+        dump = group_config.model_dump() if hasattr(group_config, 'model_dump') else group_config
+        resp = await self._httpx.post(url, json=dump)
         await resp.raise_for_status()
         return await resp.json()
 
     async def delete(self, group_name):
-        # DELETE /knowledge_bases/{group_name}
-        url = f"{self._api_base}/knowledge_bases/{group_name}"
+        # DELETE /groups/{group_name}/delete
+        url = f"{self._api_base}/groups/{group_name}/delete"
         resp = await self._httpx.delete(url)
         await resp.raise_for_status()
         return await resp.json()
@@ -81,11 +81,10 @@ class AuthRouter:
         self._httpx = httpx_client
 
     async def create(self, api_key, create_config):
-        # POST /auth/keys (example, adjust to RAGFlow API)
-        url = f"{self._api_base}/auth/keys"
+        # POST /auth/{api_key}/create
+        url = f"{self._api_base}/auth/{api_key}/create"
         dump = create_config.model_dump() if hasattr(create_config, 'model_dump') else create_config
-        data = {"api_key": api_key, **dump}
-        resp = await self._httpx.post(url, json=data)
+        resp = await self._httpx.post(url, json=dump)
         await resp.raise_for_status()
         return await resp.json()
 
@@ -117,10 +116,10 @@ class GroupAuthRouter:
         self._httpx = httpx_client
 
     async def create(self, group_name, api_key):
-        # POST /knowledge_bases/{group_name}/auth
-        url = f"{self._api_base}/knowledge_bases/{group_name}/auth"
-        data = {"api_key": api_key}
-        resp = await self._httpx.post(url, json=data)
+        # POST /group_auth/{group_name}/create
+        url = f"{self._api_base}/group_auth/{group_name}/create"
+        params = {"api_key": api_key}
+        resp = await self._httpx.post(url, params=params)
         await resp.raise_for_status()
         return await resp.json()
 

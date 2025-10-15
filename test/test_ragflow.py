@@ -78,7 +78,7 @@ class TestManage:
             mock_post.return_value.json.return_value = {"id": "123"}
             mock_post.return_value.raise_for_status = AsyncMock()
             result = await sdk.manage.create("test_group", {"type": "test"})
-            mock_post.assert_called_once_with("http://localhost:8000/knowledge_bases", json={"name": "test_group", "type": "test"})
+            mock_post.assert_called_once_with("http://localhost:8000/groups/test_group/create", json={"type": "test"})
             assert result == {"id": "123"}
 
     @pytest.mark.asyncio
@@ -96,7 +96,10 @@ class TestManage:
             mock_method.return_value.raise_for_status = AsyncMock()
             sdk_call = getattr(sdk.manage, sdk_method)
             result = await sdk_call("test_group")
-            mock_method.assert_called_once_with("http://localhost:8000/knowledge_bases/test_group")
+            if sdk_method == 'delete':
+                mock_method.assert_called_once_with("http://localhost:8000/groups/test_group/delete")
+            else:
+                mock_method.assert_called_once_with("http://localhost:8000/knowledge_bases/test_group")
             assert result == {"status": "ok"}
 
 
@@ -109,7 +112,7 @@ class TestAuth:
             mock_post.return_value.json.return_value = {"status": "ok"}
             mock_post.return_value.raise_for_status = AsyncMock()
             result = await sdk.auth.create("test_key", {"master": True})
-            mock_post.assert_called_once_with("http://localhost:8000/auth/keys", json={"api_key": "test_key", "master": True})
+            mock_post.assert_called_once_with("http://localhost:8000/auth/test_key/create", json={"master": True})
             assert result == {"status": "ok"}
 
     @pytest.mark.asyncio
@@ -142,7 +145,7 @@ class TestGroupAuth:
             mock_post.return_value.json.return_value = {"status": "ok"}
             mock_post.return_value.raise_for_status = AsyncMock()
             result = await sdk.group_auth.create("test_group", "test_key")
-            mock_post.assert_called_once_with("http://localhost:8000/knowledge_bases/test_group/auth", json={"api_key": "test_key"})
+            mock_post.assert_called_once_with("http://localhost:8000/group_auth/test_group/create", params={"api_key": "test_key"})
             assert result == {"status": "ok"}
 
     @pytest.mark.asyncio
