@@ -83,7 +83,8 @@ class AuthRouter:
     async def create(self, api_key, create_config):
         # POST /auth/keys (example, adjust to RAGFlow API)
         url = f"{self._api_base}/auth/keys"
-        data = {"api_key": api_key, **create_config}
+        dump = create_config.model_dump() if hasattr(create_config, 'model_dump') else create_config
+        data = {"api_key": api_key, **dump}
         resp = await self._httpx.post(url, json=data)
         await resp.raise_for_status()
         return await resp.json()
