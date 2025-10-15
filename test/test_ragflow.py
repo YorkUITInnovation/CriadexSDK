@@ -94,7 +94,7 @@ class TestManage:
             if sdk_method == 'delete':
                 mock_method.assert_called_once_with("http://localhost:8000/groups/test_group/delete")
             else:
-                mock_method.assert_called_once_with("http://localhost:8000/groups/test_group")
+                mock_method.assert_called_once_with("http://localhost:8000/groups/test_group/about")
             assert result == {"status": "ok"}
 
 

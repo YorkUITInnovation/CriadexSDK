@@ -70,7 +70,7 @@ class GroupsRouter:
 
     def about(self, group_name):
         # GET /knowledge_bases/{group_name}
-        url = f"{self._api_base}/groups/{group_name}"
+        url = f"{self._api_base}/groups/{group_name}/about"
         resp = self._httpx.get(url)
         resp.raise_for_status()
         return resp.json()
