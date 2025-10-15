@@ -15,7 +15,7 @@ def test_authenticate(sdk):
 
 class TestContent:
     """Tests for the Content resource."""
-
+    
     @pytest.mark.parametrize(
         "method, sdk_method, payload, expected_endpoint",
         [
@@ -31,16 +31,16 @@ class TestContent:
             mock_response.raise_for_status = MagicMock()
             mock_response.json.return_value = {"status": "ok"}
             mock_method.return_value = mock_response
-
+            
             sdk_call = getattr(sdk.content, sdk_method)
             result = sdk_call("test_group", payload)
-
+            
             mock_method.assert_called_once_with(
-                f"http://localhost:8000/knowledge_bases/test_group/{expected_endpoint}",
+                f"http://localhost:8000/groups/test_group/{expected_endpoint}",
                 json=payload,
             )
             assert result == {"status": "ok"}
-
+    
     @pytest.mark.parametrize(
         "method, sdk_method, args, expected_endpoint",
         [
@@ -55,12 +55,12 @@ class TestContent:
             mock_response.raise_for_status = MagicMock()
             mock_response.json.return_value = {"status": "ok"}
             mock_method.return_value = mock_response
-
+            
             sdk_call = getattr(sdk.content, sdk_method)
             result = sdk_call("test_group", *args)
-
+            
             mock_method.assert_called_once_with(
-                f"http://localhost:8000/knowledge_bases/test_group/{expected_endpoint}"
+                f"http://localhost:8000/groups/test_group/{expected_endpoint}"
             )
             assert result == {"status": "ok"}
 
@@ -130,34 +130,121 @@ class TestAuth:
 
 class TestGroupAuth:
     """Tests for the GroupAuth resource."""
-
+    
     def test_create(self, sdk):
         with patch.object(sdk._httpx, 'post', new_callable=MagicMock) as mock_post:
             mock_post.return_value.json.return_value = {"status": "ok"}
             mock_post.return_value.raise_for_status = MagicMock()
+            
             result = sdk.group_auth.create("test_group", "test_key")
-            mock_post.assert_called_once_with("http://localhost:8000/group_auth/test_group/create", params={"api_key": "test_key"})
+            
+            mock_post.assert_called_once_with(
+                "http://localhost:8000/group_auth/test_group/create",
+                params={"api_key": "test_key"}
+            )
             assert result == {"status": "ok"}
-
+    
     @pytest.mark.parametrize("sdk_method, http_method", [("check", "get"), ("delete", "delete")])
     def test_check_delete(self, sdk, sdk_method, http_method):
         with patch.object(sdk._httpx, http_method, new_callable=MagicMock) as mock_http_method:
             mock_http_method.return_value.json.return_value = {"status": "ok"}
             mock_http_method.return_value.raise_for_status = MagicMock()
+            
             sdk_call = getattr(sdk.group_auth, sdk_method)
             result = sdk_call("test_group", "test_key")
-            mock_http_method.assert_called_once_with("http://localhost:8000/knowledge_bases/test_group/auth/test_key")
+            
+            mock_http_method.assert_called_once_with(
+                "http://localhost:8000/groups/test_group/auth/test_key"
+            )
             assert result == {"status": "ok"}
-
+    
     def test_list(self, sdk):
         """Test listing groups for an API key."""
         with patch.object(sdk._httpx, 'get', new_callable=MagicMock) as mock_get:
             mock_get.return_value.json.return_value = ["group1", "group2"]
             mock_get.return_value.raise_for_status = MagicMock()
+            
             result = sdk.group_auth.list("test_key")
-            mock_get.assert_called_once_with("http://localhost:8000/auth/keys/test_key/knowledge_bases")
+            
+            mock_get.assert_called_once_with(
+                "http://localhost:8000/auth/keys/test_key/groups"
+            )
             assert result == ["group1", "group2"]
 
+class TestGroups:
+    """Tests for the Groups resource."""
+    
+    def test_create(self, sdk):
+        """Test creating a group."""
+        with patch.object(sdk._httpx, 'post', new_callable=MagicMock) as mock_post:
+            mock_response = MagicMock()
+            mock_response.raise_for_status = MagicMock()
+            mock_response.json.return_value = {"status": "ok", "group_name": "test_group"}
+            mock_post.return_value = mock_response
+            
+            group_config = {"description": "Test group", "settings": {}}
+            result = sdk.manage.create("test_group", group_config)  # Changed from sdk.groups to sdk.manage
+            
+            mock_post.assert_called_once_with(
+                "http://localhost:8000/groups/test_group/create",
+                json=group_config
+            )
+            assert result == {"status": "ok", "group_name": "test_group"}
+    
+    def test_create_with_pydantic_model(self, sdk):
+        """Test creating a group with a Pydantic model."""
+        with patch.object(sdk._httpx, 'post', new_callable=MagicMock) as mock_post:
+            mock_response = MagicMock()
+            mock_response.raise_for_status = MagicMock()
+            mock_response.json.return_value = {"status": "ok"}
+            mock_post.return_value = mock_response
+            
+            # Mock Pydantic model
+            mock_config = MagicMock()
+            mock_config.model_dump.return_value = {"description": "Test", "settings": {}}
+            
+            result = sdk.manage.create("test_group", mock_config)  # Changed from sdk.groups to sdk.manage
+            
+            mock_post.assert_called_once_with(
+                "http://localhost:8000/groups/test_group/create",
+                json={"description": "Test", "settings": {}}
+            )
+            assert result == {"status": "ok"}
+    
+    def test_delete(self, sdk):
+        """Test deleting a group."""
+        with patch.object(sdk._httpx, 'delete', new_callable=MagicMock) as mock_delete:
+            mock_response = MagicMock()
+            mock_response.raise_for_status = MagicMock()
+            mock_response.json.return_value = {"status": "deleted"}
+            mock_delete.return_value = mock_response
+            
+            result = sdk.manage.delete("test_group")  # Changed from sdk.groups to sdk.manage
+            
+            mock_delete.assert_called_once_with(
+                "http://localhost:8000/groups/test_group/delete"
+            )
+            assert result == {"status": "deleted"}
+    
+    def test_about(self, sdk):
+        """Test getting group information."""
+        with patch.object(sdk._httpx, 'get', new_callable=MagicMock) as mock_get:
+            mock_response = MagicMock()
+            mock_response.raise_for_status = MagicMock()
+            mock_response.json.return_value = {
+                "group_name": "test_group",
+                "description": "Test group",
+                "created_at": "2024-01-01"
+            }
+            mock_get.return_value = mock_response
+            
+            result = sdk.manage.about("test_group")  # Changed from sdk.groups to sdk.manage
+            
+            mock_get.assert_called_once_with(
+                "http://localhost:8000/groups/test_group/about"
+            )
+            assert result["group_name"] == "test_group"
+            assert result["description"] == "Test group"
 
 class TestModels:
     """Tests for the Models resource."""

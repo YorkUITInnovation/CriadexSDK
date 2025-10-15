@@ -12,38 +12,38 @@ class ContentRouter:
     def __init__(self, api_base, httpx_client):
         self._api_base = api_base
         self._httpx = httpx_client
-
+    
     def upload(self, group_name, file):
-        # POST /knowledge_bases/{group_name}/documents
-        url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
+        # POST /groups/{group_name}/documents
+        url = f"{self._api_base}/groups/{group_name}/documents"
         resp = self._httpx.post(url, json=file)
         resp.raise_for_status()
         return resp.json()
-
+    
     def search(self, group_name, search_config):
-        # POST /knowledge_bases/{group_name}/query
-        url = f"{self._api_base}/knowledge_bases/{group_name}/query"
+        # POST /groups/{group_name}/query
+        url = f"{self._api_base}/groups/{group_name}/query"
         resp = self._httpx.post(url, json=search_config)
         resp.raise_for_status()
         return resp.json()
-
+    
     def update(self, group_name, file):
-        # PATCH /knowledge_bases/{group_name}/documents
-        url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
+        # PATCH /groups/{group_name}/documents
+        url = f"{self._api_base}/groups/{group_name}/documents"
         resp = self._httpx.patch(url, json=file)
         resp.raise_for_status()
         return resp.json()
-
+    
     def delete(self, group_name, document_name):
-        # DELETE /knowledge_bases/{group_name}/documents/{document_name}
-        url = f"{self._api_base}/knowledge_bases/{group_name}/documents/{document_name}"
+        # DELETE /groups/{group_name}/documents/{document_name}
+        url = f"{self._api_base}/groups/{group_name}/documents/{document_name}"
         resp = self._httpx.delete(url)
         resp.raise_for_status()
         return resp.json()
-
+    
     def list(self, group_name):
-        # GET /knowledge_bases/{group_name}/documents
-        url = f"{self._api_base}/knowledge_bases/{group_name}/documents"
+        # GET /groups/{group_name}/documents
+        url = f"{self._api_base}/groups/{group_name}/documents"
         resp = self._httpx.get(url)
         resp.raise_for_status()
         return resp.json()
@@ -52,7 +52,7 @@ class GroupsRouter:
     def __init__(self, api_base, httpx_client):
         self._api_base = api_base
         self._httpx = httpx_client
-
+    
     def create(self, group_name, group_config):
         # POST /groups/{group_name}/create
         url = f"{self._api_base}/groups/{group_name}/create"
@@ -60,16 +60,16 @@ class GroupsRouter:
         resp = self._httpx.post(url, json=dump)
         resp.raise_for_status()
         return resp.json()
-
+    
     def delete(self, group_name):
         # DELETE /groups/{group_name}/delete
         url = f"{self._api_base}/groups/{group_name}/delete"
         resp = self._httpx.delete(url)
         resp.raise_for_status()
         return resp.json()
-
+    
     def about(self, group_name):
-        # GET /knowledge_bases/{group_name}
+        # GET /groups/{group_name}/about
         url = f"{self._api_base}/groups/{group_name}/about"
         resp = self._httpx.get(url)
         resp.raise_for_status()
@@ -114,7 +114,7 @@ class GroupAuthRouter:
     def __init__(self, api_base, httpx_client):
         self._api_base = api_base
         self._httpx = httpx_client
-
+    
     def create(self, group_name, api_key):
         # POST /group_auth/{group_name}/create
         url = f"{self._api_base}/group_auth/{group_name}/create"
@@ -122,24 +122,24 @@ class GroupAuthRouter:
         resp = self._httpx.post(url, params=params)
         resp.raise_for_status()
         return resp.json()
-
+    
     def check(self, group_name, api_key):
-        # GET /knowledge_bases/{group_name}/auth/{api_key}
-        url = f"{self._api_base}/knowledge_bases/{group_name}/auth/{api_key}"
+        # GET /groups/{group_name}/auth/{api_key}
+        url = f"{self._api_base}/groups/{group_name}/auth/{api_key}"
         resp = self._httpx.get(url)
         resp.raise_for_status()
         return resp.json()
-
+    
     def delete(self, group_name, api_key):
-        # DELETE /knowledge_bases/{group_name}/auth/{api_key}
-        url = f"{self._api_base}/knowledge_bases/{group_name}/auth/{api_key}"
+        # DELETE /groups/{group_name}/auth/{api_key}
+        url = f"{self._api_base}/groups/{group_name}/auth/{api_key}"
         resp = self._httpx.delete(url)
         resp.raise_for_status()
         return resp.json()
-
+    
     def list(self, api_key):
-        # GET /auth/keys/{api_key}/knowledge_bases
-        url = f"{self._api_base}/auth/keys/{api_key}/knowledge_bases"
+        # GET /auth/keys/{api_key}/groups
+        url = f"{self._api_base}/auth/keys/{api_key}/groups"
         resp = self._httpx.get(url)
         resp.raise_for_status()
         return resp.json()
