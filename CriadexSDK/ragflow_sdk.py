@@ -14,8 +14,8 @@ class ContentRouter:
         self._httpx = httpx_client
     
     def upload(self, group_name, file):
-        # POST /groups/{group_name}/documents
-        url = f"{self._api_base}/groups/{group_name}/documents"
+        # POST /groups/{group_name}/content/upload
+        url = f"{self._api_base}/groups/{group_name}/content/upload"
         resp = self._httpx.post(url, json=file)
         resp.raise_for_status()
         return resp.json()
@@ -28,22 +28,22 @@ class ContentRouter:
         return resp.json()
     
     def update(self, group_name, file):
-        # PATCH /groups/{group_name}/documents
-        url = f"{self._api_base}/groups/{group_name}/documents"
+        # PATCH /groups/{group_name}/content/update
+        url = f"{self._api_base}/groups/{group_name}/content/update"
         resp = self._httpx.patch(url, json=file)
         resp.raise_for_status()
         return resp.json()
     
     def delete(self, group_name, document_name):
-        # DELETE /groups/{group_name}/documents/{document_name}
-        url = f"{self._api_base}/groups/{group_name}/documents/{document_name}"
+        # DELETE /groups/{group_name}/content/delete?document_name={document_name}
+        url = f"{self._api_base}/groups/{group_name}/content/delete?document_name={document_name}"
         resp = self._httpx.delete(url)
         resp.raise_for_status()
         return resp.json()
     
     def list(self, group_name):
-        # GET /groups/{group_name}/documents
-        url = f"{self._api_base}/groups/{group_name}/documents"
+        # GET /groups/{group_name}/content/list
+        url = f"{self._api_base}/groups/{group_name}/content/list"
         resp = self._httpx.get(url)
         resp.raise_for_status()
         return resp.json()

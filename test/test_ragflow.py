@@ -19,9 +19,9 @@ class TestContent:
     @pytest.mark.parametrize(
         "method, sdk_method, payload, expected_endpoint",
         [
-            ("post", "upload", {"file_name": "test.txt"}, "documents"),
+            ("post", "upload", {"file_name": "test.txt"}, "content/upload"),
             ("post", "search", {"prompt": "hello"}, "query"),
-            ("patch", "update", {"file_name": "test.txt"}, "documents"),
+            ("patch", "update", {"file_name": "test.txt"}, "content/update"),
         ],
     )
     def test_content_write_methods(self, sdk, method, sdk_method, payload, expected_endpoint):
@@ -44,8 +44,8 @@ class TestContent:
     @pytest.mark.parametrize(
         "method, sdk_method, args, expected_endpoint",
         [
-            ("delete", "delete", ["doc_id"], "documents/doc_id"),
-            ("get", "list", [], "documents"),
+            ("delete", "delete", ["doc_id"], "content/delete?document_name=doc_id"),
+            ("get", "list", [], "content/list"),
         ],
     )
     def test_content_read_delete_methods(self, sdk, method, sdk_method, args, expected_endpoint):
