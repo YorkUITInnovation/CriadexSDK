@@ -54,6 +54,7 @@ class ContentUploadConfig(BaseModel):
     file_metadata: dict
 
 class ContentUploadResponse(BaseModel):
+    document_name: Optional[str] = None
     token_usage: Optional[int]
 
 class Filter(BaseModel):
