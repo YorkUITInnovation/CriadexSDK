@@ -227,7 +227,8 @@ class AgentsRouter:
         def rerank(self, model_id, agent_config):
             # POST /models/{model_id}/rerank
             url = f"{self._api_base}/models/{model_id}/rerank"
-            resp = self._httpx.post(url, json=agent_config)
+            dump = agent_config.model_dump(mode='json') if hasattr(agent_config, 'model_dump') else agent_config
+            resp = self._httpx.post(url, json=dump)
             resp.raise_for_status()
             return resp.json()
 
