@@ -323,16 +323,16 @@ class TestAgents:
     """Tests for the Agents resource."""
 
     @pytest.mark.parametrize(
-        "agent, sdk_method, endpoint",
+        "agent, sdk_method, endpoint, expected_url_path",
         [
-            ("azure", "chat", "chat"),
-            ("azure", "related_prompts", "related_prompts"),
-            ("azure", "transform", "transform"),
-            ("cohere", "rerank", "rerank"),
+            ("azure", "chat", "chat", "models/ragflow/test_model/agents/chat"),
+            ("azure", "related_prompts", "related_prompts", "models/test_model/related_prompts"),
+            ("azure", "transform", "transform", "models/test_model/transform"),
+            ("cohere", "rerank", "rerank", "models/test_model/rerank"),
         ],
     )
     @pytest.mark.asyncio
-    async def test_agent_methods(self, sdk, agent, sdk_method, endpoint):
+    async def test_agent_methods(self, sdk, agent, sdk_method, endpoint, expected_url_path):
         """Test various agent methods."""
         with patch.object(sdk._httpx, 'post', new_callable=AsyncMock) as mock_post:
             mock_response = AsyncMock()
@@ -346,7 +346,7 @@ class TestAgents:
             if agent == "cohere" and endpoint == "rerank":
                 expected_json = {"query": "hello", "documents": []}
             mock_post.assert_called_once_with(
-                f"http://localhost:8000/models/test_model/{endpoint}",
+                f"http://localhost:8000/{expected_url_path}",
                 json=expected_json,
             )
             assert await result == await mock_response.json()

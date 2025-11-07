@@ -186,7 +186,7 @@ class AgentsRouter:
 
         async def chat(self, model_id, agent_config):
             # POST /models/{model_id}/chat
-            url = f"{self._api_base}/models/{model_id}/chat"
+            url = f"{self._api_base}/models/ragflow/{model_id}/agents/chat"
             resp = await self._httpx.post(url, json=agent_config)
             resp.raise_for_status()
             return resp.json()
@@ -236,17 +236,7 @@ class AgentsRouter:
             if "documents" in cfg:
                 payload["documents"] = cfg["documents"]
             else:
-                nodes = cfg.get("nodes") or []
-                documents = []
-                for item in nodes:
-                    node_obj = item.get("node") if isinstance(item, dict) else None
-                    if isinstance(node_obj, dict):
-                        text = node_obj.get("text")
-                        metadata = node_obj.get("metadata", {})
-                        documents.append({"text": text, "metadata": metadata})
-                    elif isinstance(item, dict) and "text" in item:
-                        documents.append({"text": item.get("text"), "metadata": item.get("metadata", {})})
-                payload["documents"] = documents
+                payload["documents"] = cfg.get("nodes", [])
             # pass-through optional params if present
             for key in ("top_n", "min_n"):
                 if key in cfg:
