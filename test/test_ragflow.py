@@ -12,6 +12,7 @@ def test_authenticate(sdk):
     """Test that authenticate sets the API key correctly."""
     sdk.authenticate(api_key="test_key")
     assert sdk._httpx.headers["x-api-key"] == "test_key"
+    assert "Authorization" not in sdk._httpx.headers
 
 class TestContent:
     """Tests for the Content resource."""
@@ -334,6 +335,7 @@ class TestAgents:
     @pytest.mark.asyncio
     async def test_agent_methods(self, sdk, agent, sdk_method, endpoint, expected_url_path):
         """Test various agent methods."""
+        sdk.authenticate("test_key")
         with patch.object(sdk._httpx, 'post', new_callable=AsyncMock) as mock_post:
             mock_response = AsyncMock()
             mock_response.json.return_value = {"response": "ok"}
@@ -345,10 +347,19 @@ class TestAgents:
             expected_json = {"prompt": "hello"}
             if agent == "cohere" and endpoint == "rerank":
                 expected_json = {"query": "hello", "documents": []}
-            mock_post.assert_called_once_with(
-                f"http://localhost:8000/{expected_url_path}",
-                json=expected_json,
-            )
+            
+            if agent == "cohere" and endpoint == "rerank":
+                mock_post.assert_called_once_with(
+                    f"http://localhost:8000/{expected_url_path}",
+                    json=expected_json,
+                    headers={"x-api-key": "test_key"}
+                )
+            else:
+                mock_post.assert_called_once_with(
+                    f"http://localhost:8000/{expected_url_path}",
+                    json=expected_json
+                )
+
             assert await result == await mock_response.json()
 
 

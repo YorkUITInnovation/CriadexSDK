@@ -7,7 +7,7 @@ from typing import Optional
 from httpx import Client, AsyncClient
 
 
-# --- Router Stubs ---
+# --- Routers ---
 class ContentRouter:
     def __init__(self, api_base, httpx_client):
         self._api_base = api_base
@@ -103,7 +103,7 @@ class AuthRouter:
         return resp.json()
 
     async def reset(self, api_key, new_key):
-        # PATCH /auth/keys/{api_key} (example, adjust as needed)
+        # PATCH /auth/keys/{api_key}
         url = f"{self._api_base}/auth/keys/{api_key}"
         data = {"new_key": new_key}
         resp = await self._httpx.patch(url, json=data)
@@ -242,7 +242,8 @@ class AgentsRouter:
                 if key in cfg:
                     payload[key] = cfg[key]
 
-            resp = await self._httpx.post(url, json=payload)
+            headers = {"x-api-key": self._httpx.headers.get("x-api-key")}
+            resp = await self._httpx.post(url, json=payload, headers=headers)
             resp.raise_for_status()
             return resp.json()
 
@@ -256,6 +257,9 @@ class RAGFlowSDK:
         self._api_base = api_base[:-1] if api_base.endswith("/") else api_base
         self._error_stacktrace = error_stacktrace
         self._httpx = AsyncClient()
+        # Explicitly remove Authorization header from default headers
+        if "Authorization" in self._httpx.headers:
+            del self._httpx.headers["Authorization"]
         self.content = ContentRouter(self._api_base, self._httpx)
         self.manage = GroupsRouter(self._api_base, self._httpx)
         self.auth = AuthRouter(self._api_base, self._httpx)
@@ -266,3 +270,9 @@ class RAGFlowSDK:
     def authenticate(self, api_key: str) -> None:
         # Set the API key header for all requests
         self._httpx.headers["x-api-key"] = api_key
+        # Remove the Authorization header, as Criadex expects x-api-key
+        if "Authorization" in self._httpx.headers:
+            del self._httpx.headers["Authorization"]
+        # Also remove the Authorization header from the default headers of the httpx client
+        if "Authorization" in self._httpx.headers:
+            del self._httpx.headers["Authorization"]
