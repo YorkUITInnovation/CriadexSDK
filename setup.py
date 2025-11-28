@@ -14,6 +14,14 @@ setuptools.setup(
         "httpx>=0.25.1",  # Make requests
         "pydantic>=2.5.1"  # Connecting to websocket server
     ],
+    extras_require={
+        "tests": [
+            "pytest",
+            "pytest-cov",
+            "pytest-mock",
+            "pytest-asyncio",
+        ],
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",

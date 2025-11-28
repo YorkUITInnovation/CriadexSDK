@@ -1,1 +1,1 @@
-from CriadexSDK.core.criadex import CriadexSDK
+from CriadexSDK.ragflow_sdk import RAGFlowSDK as CriadexSDK
