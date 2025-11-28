@@ -65,24 +65,38 @@ Every endpoint from the Criadex API is implemented.
 - `client.auth.create`
 - `client.auth.delete`
 - `client.auth.check`
+- `client.auth.reset`
 
 ### Group Authorization
 
 - `client.group_auth.create`
 - `client.group_auth.delete`
 - `client.group_auth.check`
+- `client.group_auth.list`
 
 ### Model Management
 
 - `client.models.create`
 - `client.models.delete`
 - `client.models.about`
+- `client.models.update`
 
 ### Model Agents
+
+The SDK provides access to different agent functionalities, which are categorized by the underlying model provider.
+
+#### Ragflow Agents (`client.agents.azure`)
+
+**Note:** These agents are currently accessed via the `client.agents.azure` attribute for backward compatibility.
 
 - `client.agents.azure.chat`
 - `client.agents.azure.intents`
 - `client.agents.azure.language`
+- `client.agents.azure.related_prompts`
+- `client.agents.azure.transform`
+
+#### Cohere Agents (`client.agents.cohere`)
+
 - `client.agents.cohere.rerank`
 
 ### Group Management
