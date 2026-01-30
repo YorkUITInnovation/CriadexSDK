@@ -136,7 +136,7 @@ class TestAuth:
             mock_response.raise_for_status = MagicMock()
             mock_request.return_value = mock_response
             result = await sdk.auth.reset("test_key", "new_key")
-            mock_request.assert_called_once_with("PATCH", "http://localhost:8000/auth/keys/test_key", json={"new_key": "new_key"})
+            mock_request.assert_called_once_with("PATCH", "http://localhost:8000/auth/test_key/reset", json={"new_key": "new_key"})
             assert result == mock_response.json.return_value
 
     @pytest.mark.parametrize("sdk_method, http_method", [("delete", "DELETE"), ("check", "GET")])
@@ -149,7 +149,7 @@ class TestAuth:
             mock_request.return_value = mock_response
             sdk_call = getattr(sdk.auth, sdk_method)
             result = await sdk_call("test_key")
-            mock_request.assert_called_once_with(http_method, "http://localhost:8000/auth/keys/test_key")
+            mock_request.assert_called_once_with(http_method, f"http://localhost:8000/auth/test_key/{sdk_method}")
             assert result == mock_response.json.return_value
 
 

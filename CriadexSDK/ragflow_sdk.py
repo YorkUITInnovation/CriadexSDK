@@ -196,8 +196,8 @@ class AuthRouter:
         )
 
     async def delete(self, api_key):
-        # DELETE /auth/keys/{api_key}
-        url = f"{self._api_base}/auth/keys/{api_key}"
+        # DELETE /auth/{api_key}/delete
+        url = f"{self._api_base}/auth/{api_key}/delete"
         return await _request_with_retry(
             self._httpx,
             "DELETE",
@@ -206,8 +206,8 @@ class AuthRouter:
         )
 
     async def check(self, api_key):
-        # GET /auth/keys/{api_key}
-        url = f"{self._api_base}/auth/keys/{api_key}"
+        # GET /auth/{api_key}/check
+        url = f"{self._api_base}/auth/{api_key}/check"
         return await _request_with_retry(
             self._httpx,
             "GET",
@@ -216,8 +216,8 @@ class AuthRouter:
         )
 
     async def reset(self, api_key, new_key):
-        # PATCH /auth/keys/{api_key}
-        url = f"{self._api_base}/auth/keys/{api_key}"
+        # PATCH /auth/{api_key}/reset
+        url = f"{self._api_base}/auth/{api_key}/reset"
         data = {"new_key": new_key}
         return await _request_with_retry(
             self._httpx,
