@@ -284,8 +284,8 @@ class ModelsRouter:
         self._max_retries = max_retries
 
     async def create(self, model_id, model_config):
-        # POST /models
-        url = f"{self._api_base}/models"
+        # POST /models/azure/create
+        url = f"{self._api_base}/models/azure/create"
         data = {"model_id": model_id, **model_config}
         return await _request_with_retry(
             self._httpx,
@@ -296,8 +296,8 @@ class ModelsRouter:
         )
 
     async def delete(self, model_id):
-        # DELETE /models/{model_id}
-        url = f"{self._api_base}/models/{model_id}"
+        # DELETE /models/azure/{model_id}/delete
+        url = f"{self._api_base}/models/azure/{model_id}/delete"
         return await _request_with_retry(
             self._httpx,
             "DELETE",
@@ -306,8 +306,8 @@ class ModelsRouter:
         )
 
     async def about(self, model_id):
-        # GET /models/{model_id}
-        url = f"{self._api_base}/models/{model_id}"
+        # GET /models/azure/{model_id}/about
+        url = f"{self._api_base}/models/azure/{model_id}/about"
         return await _request_with_retry(
             self._httpx,
             "GET",
@@ -316,8 +316,8 @@ class ModelsRouter:
         )
 
     async def update(self, model_id, model_config):
-        # PATCH /models/{model_id}
-        url = f"{self._api_base}/models/{model_id}"
+        # PATCH /models/azure/{model_id}/update
+        url = f"{self._api_base}/models/azure/{model_id}/update"
         return await _request_with_retry(
             self._httpx,
             "PATCH",
