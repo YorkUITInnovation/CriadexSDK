@@ -310,7 +310,7 @@ class TestModels:
             mock_response.raise_for_status = MagicMock()
             mock_request.return_value = mock_response
             result = await sdk.models.create("test_model", {"type": "test"})
-            mock_request.assert_called_once_with("POST", "http://localhost:8000/models", json={"model_id": "test_model", "type": "test"})
+            mock_request.assert_called_once_with("POST", "http://localhost:8000/models/azure/create", json={"model_id": "test_model", "type": "test"})
             assert result == mock_response.json.return_value
 
     @pytest.mark.parametrize(
@@ -330,7 +330,7 @@ class TestModels:
             mock_request.return_value = mock_response
             sdk_call = getattr(sdk.models, sdk_method)
             result = await sdk_call("test_model")
-            mock_request.assert_called_once_with(method, "http://localhost:8000/models/test_model")
+            mock_request.assert_called_once_with(method, f"http://localhost:8000/models/azure/test_model/{sdk_method}")
             assert result == mock_response.json.return_value
 
 
