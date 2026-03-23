@@ -82,6 +82,13 @@ Every endpoint from the Criadex API is implemented.
 - `client.models.about`
 - `client.models.update`
 
+Notes:
+
+- Model methods now accept an optional `provider_type` argument (default: `"azure"`), for example:
+  - `await client.models.about(model_id=12, provider_type="anthropic")`
+  - `await client.models.create("my-model", {...}, provider_type="openai")`
+- Azure-style model config accepts legacy resource values and full endpoint-style values via `api_resource`.
+
 ### Model Agents
 
 The SDK provides access to different agent functionalities, which are categorized by the underlying model provider.

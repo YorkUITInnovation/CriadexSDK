@@ -283,10 +283,11 @@ class ModelsRouter:
         self._httpx = httpx_client
         self._max_retries = max_retries
 
-    async def create(self, model_id, model_config):
-        # POST /models/azure/create
-        url = f"{self._api_base}/models/azure/create"
-        data = {"model_id": model_id, **model_config}
+    async def create(self, model_id, model_config, provider_type: str = "azure"):
+        # POST /models/{provider_type}/create
+        url = f"{self._api_base}/models/{provider_type}/create"
+        dump = model_config.model_dump(mode='json') if hasattr(model_config, 'model_dump') else dict(model_config)
+        data = {"model_id": model_id, **dump}
         return await _request_with_retry(
             self._httpx,
             "POST",
@@ -295,9 +296,9 @@ class ModelsRouter:
             json=data,
         )
 
-    async def delete(self, model_id):
-        # DELETE /models/azure/{model_id}/delete
-        url = f"{self._api_base}/models/azure/{model_id}/delete"
+    async def delete(self, model_id, provider_type: str = "azure"):
+        # DELETE /models/{provider_type}/{model_id}/delete
+        url = f"{self._api_base}/models/{provider_type}/{model_id}/delete"
         return await _request_with_retry(
             self._httpx,
             "DELETE",
@@ -305,9 +306,9 @@ class ModelsRouter:
             max_retries=self._max_retries,
         )
 
-    async def about(self, model_id):
-        # GET /models/azure/{model_id}/about
-        url = f"{self._api_base}/models/azure/{model_id}/about"
+    async def about(self, model_id, provider_type: str = "azure"):
+        # GET /models/{provider_type}/{model_id}/about
+        url = f"{self._api_base}/models/{provider_type}/{model_id}/about"
         return await _request_with_retry(
             self._httpx,
             "GET",
@@ -315,15 +316,16 @@ class ModelsRouter:
             max_retries=self._max_retries,
         )
 
-    async def update(self, model_id, model_config):
-        # PATCH /models/azure/{model_id}/update
-        url = f"{self._api_base}/models/azure/{model_id}/update"
+    async def update(self, model_id, model_config, provider_type: str = "azure"):
+        # PATCH /models/{provider_type}/{model_id}/update
+        url = f"{self._api_base}/models/{provider_type}/{model_id}/update"
+        dump = model_config.model_dump(mode='json') if hasattr(model_config, 'model_dump') else dict(model_config)
         return await _request_with_retry(
             self._httpx,
             "PATCH",
             url,
             max_retries=self._max_retries,
-            json=model_config,
+            json=dump,
         )
 
 class AgentsRouter:
@@ -356,8 +358,8 @@ class AgentsRouter:
             )
 
         async def transform(self, model_id, agent_config):
-            # POST /models/{model_id}/transform
-            url = f"{self._api_base}/models/{model_id}/transform"
+            # POST /models/ragflow/{model_id}/agents/transform
+            url = f"{self._api_base}/models/ragflow/{model_id}/agents/transform"
             return await _request_with_retry(
                 self._httpx,
                 "POST",
@@ -367,8 +369,8 @@ class AgentsRouter:
             )
 
         async def intents(self, model_id, agent_config):
-            # POST /models/{model_id}/intents
-            url = f"{self._api_base}/models/{model_id}/intents"
+            # POST /models/ragflow/{model_id}/agents/intents
+            url = f"{self._api_base}/models/ragflow/{model_id}/agents/intents"
             return await _request_with_retry(
                 self._httpx,
                 "POST",
@@ -378,8 +380,8 @@ class AgentsRouter:
             )
 
         async def language(self, model_id, agent_config):
-            # POST /models/{model_id}/language
-            url = f"{self._api_base}/models/{model_id}/language"
+            # POST /models/ragflow/{model_id}/agents/language
+            url = f"{self._api_base}/models/ragflow/{model_id}/agents/language"
             return await _request_with_retry(
                 self._httpx,
                 "POST",

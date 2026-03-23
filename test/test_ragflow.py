@@ -313,6 +313,19 @@ class TestModels:
             mock_request.assert_called_once_with("POST", "http://localhost:8000/models/azure/create", json={"model_id": "test_model", "type": "test"})
             assert result == mock_response.json.return_value
 
+    @pytest.mark.asyncio
+    async def test_about_model_with_provider_type(self, sdk):
+        """Test provider-specific model about path."""
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"status": "ok"})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.models.about("test_model", provider_type="anthropic")
+            mock_request.assert_called_once_with("GET", "http://localhost:8000/models/anthropic/test_model/about")
+            assert result == mock_response.json.return_value
+
     @pytest.mark.parametrize(
         "method, sdk_method",
         [
@@ -342,7 +355,7 @@ class TestAgents:
         [
             ("azure", "chat", "chat", "models/ragflow/test_model/agents/chat"),
             ("azure", "related_prompts", "related_prompts", "models/test_model/related_prompts"),
-            ("azure", "transform", "transform", "models/test_model/transform"),
+            ("azure", "transform", "transform", "models/ragflow/test_model/agents/transform"),
             ("cohere", "rerank", "rerank", "models/test_model/rerank"),
         ],
     )
