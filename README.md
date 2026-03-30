@@ -30,7 +30,7 @@ A Python library to interact with the [Criadex](https://github.com/CriaYU/Criade
     # Query criadex
     async def execute_query():
         # Authenticate with the Criadex API key
-        await criadex.authenticate(api_key="YOUR_API_KEY_HERE")
+        criadex.authenticate(api_key="YOUR_API_KEY_HERE")
 
         # Define the search configuration
         search_config = SearchGroupConfig(
@@ -53,8 +53,9 @@ A Python library to interact with the [Criadex](https://github.com/CriaYU/Criade
 
 ## Available Configuration
 
-- Set `CRIADEX_SDK_TIMEOUT` to a value like `30.0` to configure timeouts
-- Set `error_stacktrace` to `True` or `False` to configure seeing Criadex stacktraces for errors 
+- Pass `timeout=30.0` to the `CriadexSDK()` constructor to configure timeouts (default: `30.0`)
+- Pass `max_retries=3` to configure HTTP retry behavior (default: `3`)
+- Set `error_stacktrace` to `True` or `False` to configure seeing Criadex stacktraces for errors
 
 ## Available Methods
 
@@ -80,6 +81,13 @@ Every endpoint from the Criadex API is implemented.
 - `client.models.delete`
 - `client.models.about`
 - `client.models.update`
+
+Notes:
+
+- Model methods now accept an optional `provider_type` argument (default: `"azure"`), for example:
+  - `await client.models.about(model_id=12, provider_type="anthropic")`
+  - `await client.models.create("my-model", {...}, provider_type="openai")`
+- Azure-style model config accepts legacy resource values and full endpoint-style values via `api_resource`.
 
 ### Model Agents
 

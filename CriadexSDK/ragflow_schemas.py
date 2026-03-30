@@ -131,7 +131,7 @@ class GroupAuthListResponse(BaseModel):
 
 # --- Agent/Model Schemas ---
 class AzureModelPartialBaseConfig(BaseModel):
-    api_resource: str = "your-resource"
+    api_resource: str = "your-resource-or-endpoint"
     api_version: str = "2023-05-15"
     api_key: str = "your-controllers-key"
     api_deployment: str = "your-deployment-name"
@@ -151,8 +151,13 @@ class CohereModelBaseConfig(CohereModelPartialBaseConfig):
 class CohereModelConfig(CohereModelBaseConfig):
     id: int
 
+class GenericModelConfig(BaseModel):
+    id: int
+    provider_type: str
+    config: Dict[str, Any]
+
 class ModelCreateResponse(BaseModel):
-    model: Optional[Union[AzureModelConfig, CohereModelConfig]]
+    model: Optional[Union[AzureModelConfig, CohereModelConfig, GenericModelConfig]]
 
 class ModelAboutResponse(ModelCreateResponse):
     pass
