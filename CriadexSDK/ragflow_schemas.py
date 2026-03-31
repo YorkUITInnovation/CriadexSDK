@@ -47,6 +47,17 @@ class GroupAboutResponse(BaseModel):
 class GroupDeleteResponse(BaseModel):
     pass
 
+class GraphStatusResponse(BaseModel):
+    group_name: Optional[str] = None
+    graph_status: str = "NOT_BUILT"
+    built_at: Optional[int] = None
+    node_count: int = 0
+    edge_count: int = 0
+    top_entities: List[str] = []
+
+class GraphBuildResponse(GraphStatusResponse):
+    pass
+
 # --- Content Schemas ---
 class ContentUploadConfig(BaseModel):
     file_name: str
@@ -111,6 +122,22 @@ class GroupSearchResponse(BaseModel):
     assets: List[Asset]
     search_units: Optional[int] = None
     metadata: dict = {}
+
+class GraphSearchConfig(BaseModel):
+    query: str
+    top_k: Optional[int] = Field(default=1, ge=1, le=1000)
+    min_k: float = Field(default=0.5, ge=0.0, le=1.0)
+    top_n: Optional[int] = Field(default=1, ge=1)
+    min_n: float = Field(default=0.5, ge=0.0, le=1.0)
+    rerank_enabled: bool = True
+    search_filter: Optional[Filter] = None
+    extra_groups: Optional[List[str]] = None
+    max_hops: int = Field(default=1, ge=1, le=3)
+    max_expansion_terms: int = Field(default=8, ge=0, le=30)
+    auto_build: bool = False
+
+class GraphSearchResponse(GroupSearchResponse):
+    graph_metadata: dict = {}
 
 class ContentListResponse(BaseModel):
     files: List[str]
