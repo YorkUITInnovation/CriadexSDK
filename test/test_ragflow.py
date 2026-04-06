@@ -543,6 +543,53 @@ class TestErrorHandling:
             with pytest.raises(ValueError):
                 await sdk.content.upload("test_group", {"file_name": "test.txt"})
 
+    @pytest.mark.asyncio
+    async def test_graph_build_not_found_error_mapping(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexAPIError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.raise_for_status = MagicMock(
+                side_effect=httpx.HTTPStatusError(
+                    message="Not Found",
+                    request=MagicMock(),
+                    response=httpx.Response(404),
+                )
+            )
+            mock_request.return_value = mock_response
+            with pytest.raises(CriadexAPIError) as excinfo:
+                await sdk.manage.build_graph("missing-group")
+            assert excinfo.value.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_graph_status_5xx_retries(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexAPIError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.raise_for_status = MagicMock(
+                side_effect=httpx.HTTPStatusError(
+                    message="Internal Server Error",
+                    request=MagicMock(),
+                    response=httpx.Response(500),
+                )
+            )
+            mock_request.return_value = mock_response
+            with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+                with pytest.raises(CriadexAPIError) as excinfo:
+                    await sdk.manage.graph_status("test_group")
+                assert excinfo.value.status_code == 500
+                assert mock_request.call_count == sdk._max_retries
+                assert mock_sleep.call_count == sdk._max_retries - 1
+
+    @pytest.mark.asyncio
+    async def test_graph_search_timeout_retries(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexNetworkError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_request.side_effect = httpx.TimeoutException("Timeout")
+            with patch("asyncio.sleep", new_callable=AsyncMock):
+                with pytest.raises(CriadexNetworkError):
+                    await sdk.manage.graph_search("test_group", {"query": "hello"})
+                assert mock_request.call_count == sdk._max_retries
+
 
 class TestNegativeCases:
     """Negative test cases for edge cases and error scenarios."""
