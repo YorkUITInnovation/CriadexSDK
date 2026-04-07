@@ -27,6 +27,7 @@ class GroupCreateConfig(BaseModel):
     llm_model_id: int
     embedding_model_id: int
     rerank_model_id: int
+    use_knowledge_graph: bool = True
 
 class GroupCreateResponse(BaseModel):
     name: str
@@ -34,6 +35,7 @@ class GroupCreateResponse(BaseModel):
     llm_model_id: int
     embedding_model_id: int
     rerank_model_id: int
+    use_knowledge_graph: Optional[bool] = None
     id: Optional[int]
     created: Optional[str]
 
