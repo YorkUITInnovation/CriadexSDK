@@ -381,6 +381,40 @@ class TestModels:
             mock_request.assert_called_once_with(method, f"http://localhost:8000/models/azure/test_model/{sdk_method}")
             assert result == mock_response.json.return_value
 
+    @pytest.mark.asyncio
+    async def test_list_models_aggregate(self, sdk):
+        """Test aggregate model list endpoint."""
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"models": []})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.models.list()
+
+            mock_request.assert_called_once_with(
+                "GET",
+                "http://localhost:8000/models/list"
+            )
+            assert result == mock_response.json.return_value
+
+    @pytest.mark.asyncio
+    async def test_list_models_provider_specific(self, sdk):
+        """Test provider-specific model list endpoint."""
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"models": [{"provider_type": "cohere"}]})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.models.list("cohere")
+
+            mock_request.assert_called_once_with(
+                "GET",
+                "http://localhost:8000/models/cohere/list"
+            )
+            assert result == mock_response.json.return_value
+
 
 class TestAgents:
     """Tests for the Agents resource."""

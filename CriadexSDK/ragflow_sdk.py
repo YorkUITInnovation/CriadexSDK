@@ -348,6 +348,19 @@ class ModelsRouter:
             max_retries=self._max_retries,
         )
 
+    async def list(self, provider_type: str = ""):
+        # GET /models/list OR /models/{provider_type}/list
+        if provider_type:
+            url = f"{self._api_base}/models/{provider_type}/list"
+        else:
+            url = f"{self._api_base}/models/list"
+        return await _request_with_retry(
+            self._httpx,
+            "GET",
+            url,
+            max_retries=self._max_retries,
+        )
+
     async def update(self, model_id, model_config, provider_type: str = "azure"):
         # PATCH /models/{provider_type}/{model_id}/update
         url = f"{self._api_base}/models/{provider_type}/{model_id}/update"
