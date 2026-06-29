@@ -27,6 +27,7 @@ class GroupCreateConfig(BaseModel):
     llm_model_id: int
     embedding_model_id: int
     rerank_model_id: int
+    use_knowledge_graph: bool = True
 
 class GroupCreateResponse(BaseModel):
     name: str
@@ -34,6 +35,7 @@ class GroupCreateResponse(BaseModel):
     llm_model_id: int
     embedding_model_id: int
     rerank_model_id: int
+    use_knowledge_graph: Optional[bool] = None
     id: Optional[int]
     created: Optional[str]
 
@@ -46,6 +48,35 @@ class GroupAboutResponse(BaseModel):
 
 class GroupDeleteResponse(BaseModel):
     pass
+
+class GraphSearchConfig(BaseModel):
+    query: str
+    top_k: Optional[int] = Field(default=1, ge=1, le=1000)
+    min_k: float = Field(default=0.5, ge=0.0, le=1.0)
+    top_n: Optional[int] = Field(default=1, ge=1)
+    min_n: float = Field(default=0.5, ge=0.0, le=1.0)
+    rerank_enabled: bool = True
+    search_filter: Optional[dict] = None
+    extra_groups: Optional[List[str]] = None
+    max_hops: int = Field(default=1, ge=1, le=3)
+    max_expansion_terms: int = Field(default=8, ge=0, le=30)
+    auto_build: bool = False
+
+
+class GroupGraphStatusResponse(BaseModel):
+    graph: dict
+    job: Optional[dict] = None
+
+
+class GroupGraphBuildResponse(BaseModel):
+    job: dict
+
+
+class GroupGraphSearchResponse(BaseModel):
+    nodes: List[dict]
+    assets: List[dict]
+    search_units: Optional[int] = None
+    graph_metadata: dict = {}
 
 # --- Content Schemas ---
 class ContentUploadConfig(BaseModel):
@@ -111,6 +142,54 @@ class GroupSearchResponse(BaseModel):
     assets: List[Asset]
     search_units: Optional[int] = None
     metadata: dict = {}
+
+
+class GraphBuildJob(BaseModel):
+    job_id: Optional[str] = None
+    group_name: Optional[str] = None
+    state: str = "QUEUED"
+    source: str = "none"
+    progress: int = 0
+    error: Optional[str] = None
+    created_at: Optional[int] = None
+    updated_at: Optional[int] = None
+
+
+class GraphBuildResponse(GraphBuildJob):
+    pass
+
+
+class GraphState(BaseModel):
+    status: str = "NOT_BUILT"
+    source: str = "none"
+    node_count: int = 0
+    edge_count: int = 0
+    top_entities: List[str] = []
+    fallback_reason: Optional[str] = None
+    error: Optional[str] = None
+    built_at: Optional[int] = None
+    updated_at: Optional[int] = None
+
+
+class GraphStatusResponse(BaseModel):
+    group_name: Optional[str] = None
+    graph: GraphState = GraphState()
+    job: Optional[GraphBuildJob] = None
+
+
+class GraphSearchMetadata(BaseModel):
+    status: str = "NOT_BUILT"
+    source: str = "standard"
+    expanded_terms: List[str] = []
+    fallback_reason: Optional[str] = None
+    max_hops: int = 1
+    max_expansion_terms: int = 8
+    job_id: Optional[str] = None
+    latency_ms: Optional[int] = None
+
+
+class GraphSearchResponse(GroupSearchResponse):
+    graph_metadata: GraphSearchMetadata = GraphSearchMetadata()
 
 class ContentListResponse(BaseModel):
     files: List[str]

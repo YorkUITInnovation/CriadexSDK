@@ -113,6 +113,41 @@ class TestManage:
             mock_request.assert_called_once_with(method, expected_url)
             assert result == mock_response.json.return_value
 
+    @pytest.mark.parametrize(
+        "method, sdk_method, expected_url",
+        [
+            ("POST", "build_graph", "http://localhost:8000/groups/test_group/build_graph"),
+            ("GET", "graph_status", "http://localhost:8000/groups/test_group/graph_status"),
+        ],
+    )
+    @pytest.mark.asyncio
+    async def test_manage_graph_methods(self, sdk, method, sdk_method, expected_url):
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"status": "ok"})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+            sdk_call = getattr(sdk.manage, sdk_method)
+            result = await sdk_call("test_group")
+            mock_request.assert_called_once_with(method, expected_url)
+            assert result == mock_response.json.return_value
+
+    @pytest.mark.asyncio
+    async def test_manage_graph_search(self, sdk):
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"nodes": [], "assets": [], "search_units": 1})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+            payload = {"query": "midterm", "max_hops": 2}
+            result = await sdk.manage.graph_search("test_group", payload)
+            mock_request.assert_called_once_with(
+                "POST",
+                "http://localhost:8000/groups/test_group/graph_search",
+                json=payload
+            )
+            assert result == mock_response.json.return_value
+
 
 class TestAuth:
     """Tests for the Auth resource."""
@@ -346,6 +381,40 @@ class TestModels:
             mock_request.assert_called_once_with(method, f"http://localhost:8000/models/azure/test_model/{sdk_method}")
             assert result == mock_response.json.return_value
 
+    @pytest.mark.asyncio
+    async def test_list_models_aggregate(self, sdk):
+        """Test aggregate model list endpoint."""
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"models": []})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.models.list()
+
+            mock_request.assert_called_once_with(
+                "GET",
+                "http://localhost:8000/models/list"
+            )
+            assert result == mock_response.json.return_value
+
+    @pytest.mark.asyncio
+    async def test_list_models_provider_specific(self, sdk):
+        """Test provider-specific model list endpoint."""
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"models": [{"provider_type": "cohere"}]})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.models.list("cohere")
+
+            mock_request.assert_called_once_with(
+                "GET",
+                "http://localhost:8000/models/cohere/list"
+            )
+            assert result == mock_response.json.return_value
+
 
 class TestAgents:
     """Tests for the Agents resource."""
@@ -389,6 +458,26 @@ class TestAgents:
                     json=expected_json
                 )
 
+            assert result == mock_response.json.return_value
+
+    @pytest.mark.asyncio
+    async def test_azure_ensure_dialog(self, sdk):
+        with patch.object(sdk._httpx, 'request', new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.json = MagicMock(return_value={"status": "ok", "created": True})
+            mock_response.raise_for_status = MagicMock()
+            mock_request.return_value = mock_response
+
+            result = await sdk.agents.azure.ensure_dialog(
+                chat_id="chat-1",
+                model_id="gpt-4o-mini",
+                tenant_id="tenant-1"
+            )
+            mock_request.assert_called_once_with(
+                "POST",
+                "http://localhost:8000/ragflow/chats/chat-1/ensure",
+                json={"llm_id": "gpt-4o-mini", "tenant_id": "tenant-1"}
+            )
             assert result == mock_response.json.return_value
 
 
@@ -487,6 +576,53 @@ class TestErrorHandling:
             mock_request.return_value = mock_response
             with pytest.raises(ValueError):
                 await sdk.content.upload("test_group", {"file_name": "test.txt"})
+
+    @pytest.mark.asyncio
+    async def test_graph_build_not_found_error_mapping(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexAPIError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.raise_for_status = MagicMock(
+                side_effect=httpx.HTTPStatusError(
+                    message="Not Found",
+                    request=MagicMock(),
+                    response=httpx.Response(404),
+                )
+            )
+            mock_request.return_value = mock_response
+            with pytest.raises(CriadexAPIError) as excinfo:
+                await sdk.manage.build_graph("missing-group")
+            assert excinfo.value.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_graph_status_5xx_retries(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexAPIError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_response = AsyncMock()
+            mock_response.raise_for_status = MagicMock(
+                side_effect=httpx.HTTPStatusError(
+                    message="Internal Server Error",
+                    request=MagicMock(),
+                    response=httpx.Response(500),
+                )
+            )
+            mock_request.return_value = mock_response
+            with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+                with pytest.raises(CriadexAPIError) as excinfo:
+                    await sdk.manage.graph_status("test_group")
+                assert excinfo.value.status_code == 500
+                assert mock_request.call_count == sdk._max_retries
+                assert mock_sleep.call_count == sdk._max_retries - 1
+
+    @pytest.mark.asyncio
+    async def test_graph_search_timeout_retries(self, sdk):
+        from CriadexSDK.ragflow_sdk import CriadexNetworkError
+        with patch.object(sdk._httpx, "request", new_callable=AsyncMock) as mock_request:
+            mock_request.side_effect = httpx.TimeoutException("Timeout")
+            with patch("asyncio.sleep", new_callable=AsyncMock):
+                with pytest.raises(CriadexNetworkError):
+                    await sdk.manage.graph_search("test_group", {"query": "hello"})
+                assert mock_request.call_count == sdk._max_retries
 
 
 class TestNegativeCases:

@@ -177,6 +177,38 @@ class GroupsRouter:
             max_retries=self._max_retries,
         )
 
+    async def build_graph(self, group_name):
+        # POST /groups/{group_name}/build_graph
+        url = f"{self._api_base}/groups/{group_name}/build_graph"
+        return await _request_with_retry(
+            self._httpx,
+            "POST",
+            url,
+            max_retries=self._max_retries,
+        )
+
+    async def graph_status(self, group_name):
+        # GET /groups/{group_name}/graph_status
+        url = f"{self._api_base}/groups/{group_name}/graph_status"
+        return await _request_with_retry(
+            self._httpx,
+            "GET",
+            url,
+            max_retries=self._max_retries,
+        )
+
+    async def graph_search(self, group_name, search_config):
+        # POST /groups/{group_name}/graph_search
+        url = f"{self._api_base}/groups/{group_name}/graph_search"
+        dump = search_config.model_dump() if hasattr(search_config, "model_dump") else search_config
+        return await _request_with_retry(
+            self._httpx,
+            "POST",
+            url,
+            max_retries=self._max_retries,
+            json=dump,
+        )
+
 class AuthRouter:
     def __init__(self, api_base: str, httpx_client: AsyncClient, max_retries: int) -> None:
         self._api_base = api_base
@@ -316,6 +348,19 @@ class ModelsRouter:
             max_retries=self._max_retries,
         )
 
+    async def list(self, provider_type: str = ""):
+        # GET /models/list OR /models/{provider_type}/list
+        if provider_type:
+            url = f"{self._api_base}/models/{provider_type}/list"
+        else:
+            url = f"{self._api_base}/models/list"
+        return await _request_with_retry(
+            self._httpx,
+            "GET",
+            url,
+            max_retries=self._max_retries,
+        )
+
     async def update(self, model_id, model_config, provider_type: str = "azure"):
         # PATCH /models/{provider_type}/{model_id}/update
         url = f"{self._api_base}/models/{provider_type}/{model_id}/update"
@@ -388,6 +433,29 @@ class AgentsRouter:
                 url,
                 max_retries=self._max_retries,
                 json=agent_config,
+            )
+
+        async def ensure_dialog(
+            self,
+            chat_id: str,
+            model_id: Optional[str] = None,
+            tenant_id: Optional[str] = None
+        ):
+            # POST /ragflow/chats/{chat_id}/ensure
+            # When model_id is omitted, Criadex resolves the tenant's default chat
+            # model. No model/provider name is hardcoded client-side.
+            url = f"{self._api_base}/ragflow/chats/{chat_id}/ensure"
+            payload = {}
+            if model_id:
+                payload["llm_id"] = model_id
+            if tenant_id:
+                payload["tenant_id"] = tenant_id
+            return await _request_with_retry(
+                self._httpx,
+                "POST",
+                url,
+                max_retries=self._max_retries,
+                json=payload,
             )
 
     class Cohere:

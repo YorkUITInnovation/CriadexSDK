@@ -6,6 +6,7 @@ on:
       - main
       - feature/ragflow-migration
       - feature/child_bot
+      - graphrag
 
 jobs:
   test:
