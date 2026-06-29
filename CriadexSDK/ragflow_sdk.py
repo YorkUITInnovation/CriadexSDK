@@ -438,12 +438,16 @@ class AgentsRouter:
         async def ensure_dialog(
             self,
             chat_id: str,
-            model_id: str = "gpt-3.5-turbo",
+            model_id: Optional[str] = None,
             tenant_id: Optional[str] = None
         ):
             # POST /ragflow/chats/{chat_id}/ensure
+            # When model_id is omitted, Criadex resolves the tenant's default chat
+            # model. No model/provider name is hardcoded client-side.
             url = f"{self._api_base}/ragflow/chats/{chat_id}/ensure"
-            payload = {"llm_id": model_id}
+            payload = {}
+            if model_id:
+                payload["llm_id"] = model_id
             if tenant_id:
                 payload["tenant_id"] = tenant_id
             return await _request_with_retry(
